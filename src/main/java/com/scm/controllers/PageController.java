@@ -2,6 +2,7 @@ package com.scm.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,12 +15,18 @@ import com.scm.helper.MessageType;
 import com.scm.services.UserService;
 
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 
 @Controller
 public class PageController {
 
     @Autowired
     private UserService userService;
+
+    public String index(){
+        return "redirect:/home";
+
+    }
    
     @RequestMapping("/home")
     public String home(){
@@ -57,8 +64,12 @@ public class PageController {
         return new String("register");
     }
     @RequestMapping(value="/do-register",method=RequestMethod.POST)
-    public String processRegister(@ModelAttribute UserForm userForm,HttpSession session){
+    public String processRegister(@Valid @ModelAttribute UserForm userForm,BindingResult rBindingResult, HttpSession session){
         System.out.println(userForm);
+
+        if(rBindingResult.hasErrors()){
+            return "register";
+        }
 
         User user = new User();
         user.setName(userForm.getName());
@@ -67,6 +78,7 @@ public class PageController {
         user.setAbout(userForm.getAbout());
         user.setPhoneNumber(userForm.getPhoneNumber());
         
+
         
         userService.saveUser(user);
         System.out.println("user save");
